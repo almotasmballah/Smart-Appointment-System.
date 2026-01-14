@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"> <title>إشعارات المواعيد</title>  
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    </head>
+    <body>
+        <h1>مركز إشعارات المواعيد</h1>
+        <ul id="notifications"></ul>
+
+        <script>
+            var socket = new SockJS('/ws-notifications');
+            var stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                console.log('Connected to STOMP');
+                stompClient.subscribe('/topic/notifications', function (notification) {
+                    if (notification.body) {
+                        console.log("Got message: " + notification.body);
+                        var list = document.getElementById("notifications");
+                        var entry = document.createElement("li");
+                        entry.appendChild(document.createTextNode(notification.body));
+                        list.appendChild(entry);
+                    }
+                });
+            }, function (err) {
+                console.error('STOMP Error:', err);
+            });
+        </script>
+    </body>
+</html>
